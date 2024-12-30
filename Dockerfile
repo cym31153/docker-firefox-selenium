@@ -15,17 +15,8 @@ RUN apt-get update && apt-get install -y \
 # 安装 Selenium
 RUN pip3 install selenium
 
-# 动态下载并安装 Geckodriver
-ARG TARGETARCH
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-      wget -q https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-v0.33.0-linux64.tar.gz -O geckodriver.tar.gz; \
-    elif [ "$TARGETARCH" = "arm64" ]; then \
-      wget -q https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-v0.33.0-linux-aarch64.tar.gz -O geckodriver.tar.gz; \
-    elif [ "$TARGETARCH" = "arm" ]; then \
-      wget -q https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-v0.33.0-linux-arm7.tar.gz -O geckodriver.tar.gz; \
-    else \
-      echo "Unsupported architecture: $TARGETARCH" && exit 1; \
-    fi && \
+# 下载并安装 Geckodriver (仅支持 arm64)
+RUN wget -q https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-v0.33.0-linux-aarch64.tar.gz -O geckodriver.tar.gz && \
     tar -xvzf geckodriver.tar.gz && \
     mv geckodriver /usr/local/bin/ && \
     chmod +x /usr/local/bin/geckodriver && \
