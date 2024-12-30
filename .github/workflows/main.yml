@@ -35,4 +35,4 @@ jobs:
         context: ./repo  # 这里是您clone下来的存储库路径
         push: true
         tags: cym31152x/firefox-selenium:latest
-        platforms: linux/arm/v8,linux/amd64,linux/arm64
+        platforms: linux/arm/v8
