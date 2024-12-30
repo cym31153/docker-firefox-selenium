@@ -1,25 +1,32 @@
-# 使用官方的 Ubuntu 基础镜像
+# 基础镜像
 FROM ubuntu:22.04
 
-# 避免交互式安装问题
+# 环境变量
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 安装必要的工具
+# 安装依赖
 RUN apt-get update && apt-get install -y \
     wget \
-    unzip \
     firefox \
-    curl \
     python3 \
     python3-pip \
     && apt-get clean
 
-# 安装 Selenium 和 geckodriver
+# 安装 Selenium
 RUN pip3 install selenium
-RUN wget -q https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-v0.33.0-linux64.tar.gz \
-    && tar -xvzf geckodriver-v0.33.0-linux64.tar.gz \
-    && mv geckodriver /usr/local/bin/ \
-    && chmod +x /usr/local/bin/geckodriver \
-    && rm geckodriver-v0.33.0-linux64.tar.gz
 
-# 设置默认工作目录
+# 动态下载并安装 Geckodriver
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      wget -q https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-v0.33.0-linux64.tar.gz -O geckodriver.tar.gz; \
+    elif [ "$TARGETARCH" = "arm64" ]; then \
+      wget -q https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-v0.33.0-linux-aarch64.tar.gz -O geckodriver.tar.gz; \
+    elif [ "$TARGETARCH" = "arm" ]; then \
+      wget -q https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-v0.33.0-linux-arm7.tar.gz -O geckodriver.tar.gz; \
+    else \
+      echo "Unsupported architecture: $TARGETARCH" && exit 1; \
+    fi && \
+    tar -xvzf geckodriver.tar.gz && \
+    mv geckodriver /usr/local/bin/ && \
+    chmod +x /usr/local/bin/geckodriver && \
+    rm geckodriver.tar.gz
